@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Kahoot Clone - Host</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+
+<body>
+    <h1>Enter Quiz Question and Answers</h1>
+    <form id="question-form">
+        <input type="text" id="question" placeholder="Enter question" required><br>
+        <input type="text" id="answer1" placeholder="Answer 1" required><br>
+        <input type="text" id="answer2" placeholder="Answer 2" required><br>
+        <input type="text" id="answer3" placeholder="Answer 3" required><br>
+        <input type="text" id="answer4" placeholder="Answer 4" required><br>
+        <label for="correctAnswer">Correct answer:</label>
+        <select id="correctAnswer">
+            <option value="1">Answer 1</option>
+            <option value="2">Answer 2</option>
+            <option value="3">Answer 3</option>
+            <option value="4">Answer 4</option>
+        </select><br>
+        <button type="submit">Submit Question</button>
+    </form>
+    <hr>
+    <h2>Connected Clients and Responses</h2>
+    <ul id="client-list"></ul>
+    <script src="host.js"></script>
+</body>
+</html>
