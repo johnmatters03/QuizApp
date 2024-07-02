@@ -2,11 +2,16 @@ const socket = new WebSocket('ws://localhost:3000');
 
 socket.addEventListener('open', function (event) {
     console.log('Connected to the server');
+    socket.send(JSON.stringify({
+        type: 'initial-connection',
+        client: 'host'
+    }));
 });
 
 socket.addEventListener('message', function (event) {
     const data = JSON.parse(event.data);
     if (data.type === 'update-client-list') {
+        console.log('updating client list');
         const clientList = document.getElementById('client-list');
         clientList.innerHTML = '';
         data.data.forEach(name => {

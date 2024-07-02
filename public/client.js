@@ -2,6 +2,10 @@ const socket = new WebSocket('ws://localhost:3000');
 
 socket.addEventListener('open', function (event) {
     console.log('Connected to the server');
+    socket.send(JSON.stringify({
+        type: 'initial-connection',
+        client: 'user'
+    }));
 });
 
 socket.addEventListener('message', function (event) {
