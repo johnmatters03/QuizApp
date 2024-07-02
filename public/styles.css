@@ -1,0 +1,57 @@
+/* General Body Settings */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f9;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    width: 80%;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1, h2 {
+    color: #333;
+}
+
+.question-form input[type="text"], .question-form select {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.question-form button {
+    background-color: #5c67f2;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.question-form button:hover {
+    background-color: #4a54e1;
+}
+
+/* List styles */
+#client-list {
+    list-style: none;
+    padding: 0;
+}
+
+#client-list li {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
