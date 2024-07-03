@@ -1,77 +1,55 @@
-const express = require('express');
-const { createServer } = require('http');
+// server.js
 const WebSocket = require('ws');
+const http = require('http');
 
-const app = express();
-const server = createServer(app);
+const server = http.createServer();
 const wss = new WebSocket.Server({ server });
 
-let clients = [];
-let host = null;
+let managerClient = null;
+let userClients = [];
 
-app.use(express.static('public'));
+wss.on('connection', (ws, req) => {
+  const clientType = req.url.substring(1); // Assuming URL is like /manager or /user
 
-wss.on('connection', 
-    function(socket) {
-        // console.log('A client connected');
-        let clientId = null;
-        socket.on('message', function(message) {
-            const data = JSON.parse(message);
-            switch (data.type) {
-                case 'initial-connection':
-                    if (host != null && data.client == 'host') {
-                        console.log('host trying to connect when host already connected');
-                    } else if (data.client == 'host') {
-                        console.log('host connection established');
-                        host = socket;
-                    } else {
-                        console.log('client connection established');
-                        clientId = Math.random().toString(36).substr(2, 9);
-                        clients.push({ id: clientId, socket });
-                    }
-                    break;
-                case 'join-game':
-                    console.log('client %s joining the game', data.name);
-                    const clientInfo = { id: clientId, name: data.name, socket };
-                    clients = clients.map(c => c.id === clientId ? clientInfo : c);
-                    broadcast('update-client-list', clients.map(client => client.name));
-                    if (host != null) {
-                        host.send(JSON.stringify({ type: 'update-client-list', data: clients.map(client => client.name)}));
-                    }
-                    break;
-                case 'new-question':
-                    broadcast('question', data);
-                    break;
-                case 'answer':
-                    const client = clients.find(client => client.id === clientId);
-                    if (client) {
-                        broadcast('receive-answer', { name: client.name, answer: data.answer });
-                    }
-                    break;
+  if (clientType === "manager") {
+    console.log('Manager connected');
+    managerClients = ws;
+  } else if (clientType === "user") {
+    console.log('User connected');
+    userClients.push(ws);
+  } else {
+    console.log('Unknown connection, terminating');
+    ws.close()
+  }
+
+  ws.on('message', (message) => {
+    console.log('receiving message from %s', clientType);
+    if (clientType === "manager") {
+      // Broadcast to users
+      userClients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          client.send(String(message));
         }
-    });
+      });
+    } else if (clientType === "user") {
+      // Broadcast to managers
+      if (managerClient.readyState == WebSocket.OPEN) {
+        managerClient.send(String(message));
+      }
+    }
+  });
 
-    socket.on('close', () => {
-        if (clientId == null) {
-            console.log('host disconnected');
-            host = null;
-        } else {
-            clients = clients.filter(client => client.id !== clientId);
-            broadcast('update-client-list', clients.map(client => client.name));
-            if (host != null) {
-                host.send(JSON.stringify({ type: 'update-client-list', data: clients.map(client => client.name)}));
-            }
-            console.log('User disconnected');
-        }
-    });
+  ws.on('close', () => {
+    if (clientType === "manager") {
+        console.log('Manager disconnected');
+        managerClient = null;
+    } else if (clientType === "user") {
+        console.log('User disconnected');
+        userClients = userClients.filter(client => client !== ws);
+    }
+  });
 });
 
-function broadcast(type, data) {
-    clients.forEach(client => {
-        client.socket.send(JSON.stringify({ type, data }));
-    });
-}
-
-server.listen(3000, () => {
-    console.log('Listening on port 3000');
+server.listen(8080, () => {
+  console.log('Server started on http://localhost:8080');
 });
